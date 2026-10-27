@@ -639,6 +639,23 @@ export default function App() {
   );
   const [schedules, setSchedules] = usePersistedState('academiaconf_schedules', {}, asObject);
 
+  // Sync papers from backend / Supabase
+  const refreshBackendData = async () => {
+    try {
+      const res = await fetch(API_BASE + '/papers');
+      if (res.ok) {
+        const livePapers = await res.json();
+        if (Array.isArray(livePapers) && livePapers.length > 0) {
+          setPapers(livePapers);
+        }
+      }
+    } catch (_e) { }
+  };
+
+  useEffect(() => {
+    refreshBackendData();
+  }, []);
+
   // Auth — tries the Express backend first; falls back to localStorage if the
   // backend is unreachable (e.g. backend not started yet during pure-frontend dev).
   const handleRegister = async (name, email, password, role) => {
